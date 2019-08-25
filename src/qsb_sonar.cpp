@@ -14,19 +14,7 @@ QsbSonar::QsbSonar(QWidget *parent, bool mock)
       connectionLost(false),
       mock(mock)
 {
-    /*
-   resize(
-      QDesktopWidget()
-               .availableGeometry(this)
-               .size() * 0.7
-   );
-   */
-
    startThread();
-
-   // QTimer *timer = new QTimer(this);
-   // connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-   // timer->start(100);
 }
 
 /* === = === = === = === = === = === = === = === = === = === = === = === */
@@ -89,19 +77,71 @@ void QsbSonar::paintRadarBorder(QPainter &painter)
 
 /* === = === = === = === = === = === = === = === = === = === = === = === */
 
+void QsbSonar::paintRadarAngleLines(QPainter &painter)
+{
+   const int minSize = sqrt(2) * qMax(this->width(), this->height()) / 2;
+   int sizeLine = minSize;
+   painter.save();
+   painter.setPen(QPen(Qt::green));
+   for ( int i = 0; i < 360; i += angleStep ) {
+       painter.rotate(i);
+       painter.drawLine(
+          QPoint(0, 0),
+          QPoint(sizeLine, sizeLine)
+        );
+   }
+   painter.restore();
+}
+
+/* === = === = === = === = === = === = === = === = === = === = === = === */
+
+void QsbSonar::paintRadarText(QPainter &painter)
+{
+   const int minSize = sqrt(2) * qMax(this->width(), this->height()) / 2;
+   const int posText = sqrt(2) * qMax(this->width(), this->height()) / 2;
+   painter.save();
+   painter.setPen(QPen(Qt::yellow));
+   int n = 0;
+   for ( int i = 0; i < 360; i += angleStep ) {
+       painter.drawText(
+          QRect(
+              (posText / 2),
+              0,
+              30, 30),
+          QString::number(i) + "°"
+       );
+       if ( (n % 3) == 0 ) {
+          for ( int j = distanceStep; j < minSize; j += distanceStep) {
+             painter.drawText(
+                QRect( j, -15, 30, 30),
+                QString::number(j / distanceFactor)
+             );
+          }
+       }
+       n++;
+       painter.rotate(angleStep);
+   }
+   painter.restore();
+}
+
+
+/* === = === = === = === = === = === = === = === = === = === = === = === */
+
 void QsbSonar::paintRadarCircles(QPainter &painter)
 {
-   for ( int i = 0; i < this->width(); i += 50 ) {
+   // painter.save();
+   painter.setPen(QPen(Qt::green, 4));
+   for ( int i = 0; i < this->width(); i += distanceStep ) {
        paintRadarCircle(painter, i);
    }
+   // painter.restore();
 }
 
 /* === = === = === = === = === = === = === = === = === = === = === = === */
 
 void QsbSonar::paintRadarCircle(QPainter &painter, int radius)
 {
-    painter.setPen(QPen(Qt::green, 4));
-    painter.drawEllipse(getRadarCenter(), radius, radius);
+    painter.drawEllipse(QPoint(0, 0), radius, radius);
 }
 
 /* === = === = === = === = === = === = === = === = === = === = === = === */
@@ -109,6 +149,7 @@ void QsbSonar::paintRadarCircle(QPainter &painter, int radius)
 void QsbSonar::paintRadarLine(QPainter &painter, double angle)
 {
 
+    // painter.save();
     int n_lines = 20;
     int n_step = 2;
     double theta = angle - n_lines * factor;
@@ -121,11 +162,8 @@ void QsbSonar::paintRadarLine(QPainter &painter, double angle)
                    i * 255.0 / n_lines / 2);
        painter.setPen(QPen(color, 1));
        painter.drawLine(
-          this->getRadarCenter(),
-          this->getRadarCenter()
-                   + QPoint(
-                       maxSize * cos(theta),
-                       maxSize * sin(theta))
+           QPoint(0,0),
+           QPoint( maxSize * cos(theta), maxSize * sin(theta))
         );
         theta += factor / n_step;
         i++;
@@ -133,12 +171,10 @@ void QsbSonar::paintRadarLine(QPainter &painter, double angle)
 
     painter.setPen(QPen(Qt::red, 3));
     painter.drawLine(
-          this->getRadarCenter(),
-          this->getRadarCenter()
-                   + QPoint(
-                       maxSize * cos(angle),
-                       maxSize * sin(angle))
+          QPoint(0,0),
+          QPoint(maxSize * cos(angle), maxSize * sin(angle))
     );
+   // painter.restore();
 
 //   QPainterPath path;
 //   path.moveTo(this->getRadarCenter());
@@ -158,6 +194,7 @@ void QsbSonar::paintRadarLine(QPainter &painter, double angle)
 
 void QsbSonar::paintObstacles(QPainter &painter)
 {
+    // painter.save();
     QMutableListIterator<QsbObject> it(obstacles);
     while( it.hasNext() ) {
         if ( it.next().countPaint <= 0 ) {
@@ -166,6 +203,7 @@ void QsbSonar::paintObstacles(QPainter &painter)
             it.value().paint(painter);
         }
     }
+   // painter.restore();
 
 }
 
@@ -179,17 +217,14 @@ void QsbSonar::forceUpdate(const QsbSonarData &data)
    __counter = 5;
 
    // Visualize objects under 100 cm
-   if ( data.distance < 100 ) {
+   if ( data.distance < maxSonarDisplay ) {
 
       // map the distance to a smaller area.
-      int distance = data.distance * std::min(this->width(), this->height()) / 200.0;
+      int distance = data.distance * distanceFactor;
+      // position with ref to the center
       QsbObject obstacle(
             distance,
-            getRadarCenter() +
-            QPoint(
-                  distance * cos(angle),
-                  distance * sin(angle)
-            ),
+            QPoint( distance * cos(angle), distance * sin(angle) ),
             angle
             );
       obstacles.append(obstacle);
@@ -240,6 +275,8 @@ QsbSerailReader *QsbSonar::getSerialReader(int offset)
 void QsbSonar::paintEvent(QPaintEvent */*event*/)
 {
     QPainter painter(this);
+    distanceFactor = std::min(this->width(), this->height()) / maxSonar / 2;
+    distanceStep = maxSonar * distanceFactor / 7;
 
     if ( connectionLost ) {
         QTimer *timer = new QTimer();
@@ -271,10 +308,15 @@ void QsbSonar::paintEvent(QPaintEvent */*event*/)
     }
 
     paintRadarMonitor(painter);
+    // with ref to the center
+    painter.translate(getRadarCenter());
+    paintRadarAngleLines(painter);
     paintRadarCircles(painter);
     paintRadarLine(painter, angle);
-    paintRadarBorder(painter);
+    paintRadarText(painter);
     paintObstacles(painter);
+    painter.translate(-getRadarCenter());
+    paintRadarBorder(painter);
     // this->updateAngle();
 
 }

@@ -39,6 +39,8 @@ private:
    /* === Paint === */
    void paintRadarMonitor(QPainter &painter);
    void paintRadarBorder(QPainter &painter);
+   void paintRadarAngleLines(QPainter &painter);
+   void paintRadarText(QPainter &painter);
    void paintRadarCircles(QPainter &painter);
    void paintRadarCircle(QPainter &painter, int radius);
    void paintRadarLine(QPainter &painter, double angle);
@@ -51,6 +53,11 @@ private:
     QRect getRadarArea();
     QPoint getRadarCenter();
     int margin = 10;
+    int angleStep = 30 / 2;
+    int distanceFactor = 1;
+    int maxSonar = 170;
+    int maxSonarDisplay = 150;
+    int distanceStep = 50;
     double angle = 0.0;
     double lastAngle = 0.0;
     const double factor = 3.141592654 / 180.0;

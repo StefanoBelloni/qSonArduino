@@ -1,4 +1,7 @@
-# qSonaArduino
+# qSonArduino v0.1 #
+## An Arduino Sonar for the 28BYJ-48 stepper motor using ULN2003 driver board and Qt to Display ##
+
+#### created by Stefano Belloni, 8/2019 ####
 
 this is a small Sonar build with arduino and Qt
 

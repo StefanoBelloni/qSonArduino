@@ -16,12 +16,15 @@ QsbSerialReaderMock::QsbSerialReaderMock()
 void QsbSerialReaderMock::readFromSerial()
 {
    double rads = 0.0;
-   double distance = 100;
+   double distance = 70;
    double distance_start = 100;
    /* ======================================= */
    forever {
        usleep(10000);
        QsbSonarData data;
+       if ( data.distance > 100 ) {
+           data.distance = 170;
+       }
        emit newDataReady(data);
        data.grads = rads;
        data.distance = distance;
