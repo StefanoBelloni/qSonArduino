@@ -31,6 +31,7 @@ const int echoPin = 6;
 const int btnPin = 13;
 
 const int ledPin = 7;
+const int speedPin = 0;
 
 const int timeout = 10000;
 
@@ -77,6 +78,11 @@ void loop() {
      resetRevolution();
      return;
   }
+
+  motorSpeed = 5 + (int)(analogRead(speedPin) * 0.28);
+  stepper.setSpeed(motorSpeed);
+  // Serial.print("speed: ");
+  // Serial.println(motorSpeed);
   
   int steps = 5;
 

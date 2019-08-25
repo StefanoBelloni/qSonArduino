@@ -121,7 +121,7 @@ bool QsbSerailReader::readData(int timeout)
            numberInvalidReads = 0;
            bufferData[sizeBuffer] = c;
            sizeBuffer++;
-           fprintf(stdout, "%c", c);
+           // fprintf(stdout, "%c", c);
        }
 
        if ( ret < 0 ) {
@@ -132,7 +132,7 @@ bool QsbSerailReader::readData(int timeout)
            // exit(EXIT_FAILURE);
        }
        if ( c == '\n' ) {
-           // fprintf(stdout, "::W::\n");
+           // fprintf(stdout, "%s\n", bufferData);
            return true;
        }
 

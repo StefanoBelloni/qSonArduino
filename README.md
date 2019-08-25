@@ -15,6 +15,7 @@ Follow the (incomplete) fritzing schema.
  - the motor is connected to and external Power supply 
  - mount on the stepper monitor the Ultrasonic Sensor 
  - adjust the parameters to your environment, for example steps pro revolutions speed ... 
+ - use the potentiometer to incerase or decrease the speed of revolution.
 
 Build and run the Qt radar.
 
