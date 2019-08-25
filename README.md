@@ -7,8 +7,9 @@ this is a small Sonar build with arduino and Qt
 
 ![Alt text](res/sonar_bb.png?raw=true "Arduino Schematics")
 ![Alt text](res/q_sonar.png?raw=true "Radar")
+![Alt text](res/sonar_metal.jpg?raw=true "Radar")
 
-## Build 
+## Build
 
 Follow the (incomplete) fritzing schema. 
  - the motor is connected with a motor driver (X113647 Stepper Driver Board) to arduino
