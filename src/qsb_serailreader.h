@@ -18,7 +18,7 @@ public:
     ~QsbSerailReader();
 
 signals:
-    virtual void newDataReady(const QsbSonarData &data);
+    void newDataReady(const QsbSonarData &data);
     void reset();
     void connectionError();
 
@@ -26,9 +26,9 @@ public slots:
     virtual void readFromSerial();
 
 protected:
-    QTimer *timer = nullptr;
     int fileDescriptor = -1;
     QString deviceName;
+    QTimer *timer = nullptr;
     char bufferData[1024];
     int sizeBuffer = 0;
     double lastAngle = 0.0;

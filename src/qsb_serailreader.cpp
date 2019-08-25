@@ -35,8 +35,6 @@ QsbSerailReader::~QsbSerailReader()
 
 void QsbSerailReader::readFromSerial()
 {
-   int i = 0;
-
    if ( fileDescriptor == -1 ) {
        openPort(deviceName.toLocal8Bit().constData());
    }
@@ -91,7 +89,7 @@ void QsbSerailReader::openPort(const char *device)
     return;
   }
   rc = read(fileDescriptor, readBuf, 16);
-  if (fileDescriptor == -1) {
+  if (fileDescriptor == -1 || rc <= 0) {
     perror("read from divice: Unable to read");
     withError = true;
     emit connectionError();
@@ -129,7 +127,7 @@ bool QsbSerailReader::readData(int timeout)
        if ( ret < 0 ) {
            // perror("Error reading file descriptor.");
            numberInvalidReads++;
-           printf("Invalids reading %d\n", numberInvalidReads);
+           // printf("Invalids reading %d\n", numberInvalidReads);
            // close(fileDescriptor);
            // exit(EXIT_FAILURE);
        }

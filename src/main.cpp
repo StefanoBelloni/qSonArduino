@@ -11,8 +11,8 @@ int main(int argc, char *argv[])
     qRegisterMetaType<QsbSonarData>("RadarData");
 
     // QsbRadar w;
-    // MainWindow w;
-    MainWindow w(true);
+    MainWindow w;
+    // MainWindow w(true);
 
     w.show();
 
